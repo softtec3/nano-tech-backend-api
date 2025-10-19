@@ -38,6 +38,9 @@ try {
     $response["success"] = true;
     $response["message"] = "Successfully created a new user";
     $response["data"] = ["insert_id" => $stmt->insert_id];
+
+    $stmt->close();
+    $conn->close();
 } catch (Exception $e) {
     $response["success"] = false;
     $response["message"] = $e->getMessage();
