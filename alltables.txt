@@ -1,0 +1,11 @@
+//users TABLE
+CREATE TABLE users (
+	id int AUTO_INCREMENT PRIMARY KEY,
+    name varchar(100) DEFAULT NULL,
+    designation varchar(100) DEFAULT NULL,
+    employee_id varchar(100) DEFAULT NULL,
+    email varchar(255) NOT NULL,
+    password varchar(255) NOT NULL,
+    role varchar(100) DEFAULT 'user',
+    created_at timestamp DEFAULT CURRENT_TIMESTAMP
+)
