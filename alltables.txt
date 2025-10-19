@@ -9,3 +9,20 @@ CREATE TABLE users (
     role varchar(100) DEFAULT 'user',
     created_at timestamp DEFAULT CURRENT_TIMESTAMP
 )
+
+//categories
+CREATE TABLE categories(
+	id int AUTO_INCREMENT PRIMARY KEY,
+    category_en varchar(100) DEFAULT NULL,
+    category_bn varchar(100) DEFAULT NULL,
+    created_at timestamp DEFAULT CURRENT_TIMESTAMP
+)
+//sub categories
+CREATE TABLE sub_categories(
+	id int AUTO_INCREMENT PRIMARY KEY,
+    category_id int NOT NULL,
+    sub_category_en varchar(100) DEFAULT NULL,
+    sub_category_bn varchar(100) DEFAULT NULL,
+    FOREIGN KEY(category_id) REFERENCES categories(id) ON UPDATE CASCADE on DELETE CASCADE,
+    created_at timestamp DEFAULT CURRENT_TIMESTAMP
+)
