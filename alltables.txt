@@ -26,3 +26,11 @@ CREATE TABLE sub_categories(
     FOREIGN KEY(category_id) REFERENCES categories(id) ON UPDATE CASCADE on DELETE CASCADE,
     created_at timestamp DEFAULT CURRENT_TIMESTAMP
 )
+
+//warehouses TABLE
+CREATE TABLE IF NOT EXISTS warehouses(
+	id int AUTO_INCREMENT PRIMARY KEY,
+    warehouse_name varchar(100) DEFAULT NULL UNIQUE,
+    warehouse_location varchar(255) DEFAULT NULL,
+    created_at timestamp DEFAULT CURRENT_TIMESTAMP
+)
