@@ -7,7 +7,8 @@ if (!isset($_SESSION["logged_user_role"]) || $_SESSION["logged_user_role"] !== "
     http_response_code(403);
     echo json_encode([
         "success" => false,
-        "message" => "Access denied. Admin privileges required."
+        "message" => "Access denied. Admin privileges required.",
+        "role" => $_SESSION["logged_user_role"]
     ]);
     exit();
 }
