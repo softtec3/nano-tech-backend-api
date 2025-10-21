@@ -1,5 +1,6 @@
 <?php
 require_once("./db_connect.php");
+require_once("./auth_admin_only.php");
 $response = [
     "success" => false,
     "message" => "",
