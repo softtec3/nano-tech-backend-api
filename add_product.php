@@ -13,11 +13,12 @@ function upload_file_get_name($name)
     if (isset($_FILES[$name]) && $_FILES[$name]['error'] === UPLOAD_ERR_OK) {
         $uploadDir = "./uploads/products/";
         $fileName = basename($_FILES[$name]["name"]);
+        $saved_file_name = "uploads/products/" . $fileName;
         $targetPath = $uploadDir . $fileName;
 
         // Move the uploaded file
         if (move_uploaded_file($_FILES[$name]["tmp_name"], $targetPath)) {
-            return $fileName;
+            return $saved_file_name;
         } else {
             // Failed to move file
             return null;
