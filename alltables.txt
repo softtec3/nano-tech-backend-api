@@ -34,3 +34,44 @@ CREATE TABLE IF NOT EXISTS warehouses(
     warehouse_location varchar(255) DEFAULT NULL,
     created_at timestamp DEFAULT CURRENT_TIMESTAMP
 )
+
+//products
+
+CREATE TABLE IF NOT EXISTS products(
+	id int AUTO_INCREMENT PRIMARY KEY,
+    product_name_en varchar(255) DEFAULT NULL,
+    product_name_bn varchar(255) DEFAULT NULL,
+    regular_price int DEFAULT 0,
+    discount int DEFAULT 0,
+    current_price int DEFAULT 0,
+    product_model varchar(100) DEFAULT NULL,
+    raw_product_category varchar(100) DEFAULT NULL,
+    product_category varchar(100) DEFAULT NULL,
+    product_category_id int DEFAULT NULL,
+    raw_product_sub_category varchar(100) DEFAULT NULL,
+    product_sub_category varchar(100) DEFAULT NULL,
+    product_sub_category_id int DEFAULT NULL,
+    raw_warehouse varchar(255) DEFAULT NULL,
+    warehouse_name varchar(100) DEFAULT NULL,
+    warehouse_id int DEFAULT NULL,
+    warehouse_address TEXT DEFAULT NULL,
+    raw_warehouse_section varchar(255) DEFAULT NULL,
+    warehouse_section_name varchar(100) DEFAULT NULL,
+    warehouse_section_id int DEFAULT NULL,
+    raw_warehouse_sub_section varchar(255) DEFAULT NULL,
+    warehouse_sub_section_name varchar(100) DEFAULT NULL,
+    warehouse_sub_section_id int DEFAULT NULL,
+    product_quantity int DEFAULT 0,
+    product_warranty varchar(100) DEFAULT NULL,
+    product_main_img TEXT DEFAULT NULL,
+    product_img_one TEXT DEFAULT NULL,
+    product_img_two TEXT DEFAULT NULL,
+    product_img_three TEXT DEFAULT NULL,
+    product_img_four TEXT DEFAULT NULL,
+    product_description_en TEXT DEFAULT NULL,
+    product_description_bn TEXT DEFAULT NULL,
+    marker varchar(100) DEFAULT NULL,
+    created_at timestamp DEFAULT CURRENT_TIMESTAMP
+)
+
+//product_specifications
