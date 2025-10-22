@@ -13,7 +13,7 @@ try {
     $lang = $_GET["lang"] ?? "en";
     $sub_cat_field = $lang == "bn" ? "sub_category_bn" : "sub_category_en";
     // get all sub categories
-    $stmt = $conn->prepare("SELECT id, $sub_cat_field AS sub_category_name FROM sub_categories");
+    $stmt = $conn->prepare("SELECT id, $sub_cat_field AS sub_category_name,category_id FROM sub_categories");
     if (!$stmt) {
         throw new Exception("SQL failed " . $conn->error);
     }
