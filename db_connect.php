@@ -1,7 +1,9 @@
 <?php
 $allowed_origins = [
-    "http://localhost:5173",               // local development (Vite)
-    "https://admin.nano-techbd.com",       // production frontend
+    "http://localhost:5173",
+    "http://localhost:5174",                // local development (Vite)
+    "https://admin.nano-techbd.com",
+    "https://front.nano-techbd.com"
 ];
 
 if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowed_origins)) {
