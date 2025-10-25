@@ -1,7 +1,7 @@
 <?php
 $allowed_origins = [
     "http://localhost:5173",
-    "http://localhost:5174",                // local development (Vite)
+    "http://localhost:5174",               // local development (Vite)
     "https://admin.nano-techbd.com",
     "https://front.nano-techbd.com"
 ];
