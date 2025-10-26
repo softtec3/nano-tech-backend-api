@@ -31,6 +31,7 @@ try {
     product_id int NOT NULL,
     product_name TEXT DEFAULT NULL,
     assign_products_quantity int DEFAULT 0,
+    current_quantity int DEFAULT 0,
     sales_point_id int NOT NULL,
     sales_point_name varchar(255) NOT NULL,
     assign_date timestamp DEFAULT CURRENT_TIMESTAMP
@@ -52,13 +53,14 @@ try {
     $sales_point_id = (int) $data["sales_point_id"] ?? 0;
     $sales_point_name = $data["sales_point_name"] ?? "";
     $assign_product_quantity = (int) $data["assign_product_quantity"] ?? 0;
+    $current_quantity = (int) $data["current_quantity"] ?? 0;
     $selectedIds = $data["selectedIds"];
 
-    $stmt = $conn->prepare("INSERT INTO sales_points_products_summary (product_id,product_name,assign_products_quantity,sales_point_id,sales_point_name) VALUES (?,?,?,?,?)");
+    $stmt = $conn->prepare("INSERT INTO sales_points_products_summary (product_id,product_name,assign_products_quantity,current_quantity, sales_point_id,sales_point_name) VALUES (?,?,?,?,?,?)");
     if (!$stmt) {
         throw new Exception("SQL failed on sales_points_products_summary " . $conn->error);
     }
-    $stmt->bind_param("isiis", $product_id, $product_name, $assign_product_quantity, $sales_point_id, $sales_point_name);
+    $stmt->bind_param("isiiis", $product_id, $product_name, $assign_product_quantity, $current_quantity, $sales_point_id, $sales_point_name);
     if (!$stmt->execute()) {
         throw new Exception("Failed to insert on sales_points_products_summary " . $stmt->error);
     }
