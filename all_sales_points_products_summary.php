@@ -12,7 +12,7 @@ try {
     if ($_SERVER["REQUEST_METHOD"] != "GET") {
         throw new Exception("Invalid request method. Must be GET request");
     }
-    $stmt = $conn->prepare("SELECT * FROM sales_points_products_summary");
+    $stmt = $conn->prepare("SELECT * FROM sales_points_products_summary ORDER BY id DESC");
     if (!$stmt) {
         throw new Exception("SQL failed: " . $conn->error);
     }
