@@ -38,6 +38,7 @@ try {
     regular_price int DEFAULT 0,
     discount int DEFAULT 0,
     current_price int DEFAULT 0,
+    delivery_charge int DEFAULT 0,
     product_model varchar(100) DEFAULT NULL,
     raw_product_category varchar(100) DEFAULT NULL,
     product_category varchar(100) DEFAULT NULL,
@@ -97,6 +98,7 @@ CREATE TABLE IF NOT EXISTS product_specifications(
     $regular_price = (int) $_POST["regular_price"] ?? 0;
     $discount = (int) $_POST["discount"] ?? 0;
     $current_price = (int) $_POST["current_price"] ?? 0;
+    $delivery_charge = (int) $_POST["delivery_charge"] ?? 0;
     $product_model = $_POST["product_model"] ?? "";
     $raw_product_category = $_POST["product_category"];
     $product_category = explode("+", $raw_product_category)[1] ?? NULL;
@@ -126,12 +128,12 @@ CREATE TABLE IF NOT EXISTS product_specifications(
 
 
     //save data to database
-    $stmt = $conn->prepare("INSERT INTO products (product_name_en, product_name_bn, regular_price,	discount, current_price, product_model, raw_product_category, product_category,	product_category_id,	raw_product_sub_category, product_sub_category,	product_sub_category_id, raw_warehouse,	warehouse_name,	warehouse_id, warehouse_address, raw_warehouse_section,	warehouse_section_name,	warehouse_section_id,	raw_warehouse_sub_section, warehouse_sub_section_name, warehouse_sub_section_id, product_quantity,	product_warranty, product_main_img,	product_img_one, product_img_two, product_img_three,	product_img_four, product_description_en, product_description_bn) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+    $stmt = $conn->prepare("INSERT INTO products (delivery_charge, product_name_en, product_name_bn, regular_price,	discount, current_price, product_model, raw_product_category, product_category,	product_category_id,	raw_product_sub_category, product_sub_category,	product_sub_category_id, raw_warehouse,	warehouse_name,	warehouse_id, warehouse_address, raw_warehouse_section,	warehouse_section_name,	warehouse_section_id,	raw_warehouse_sub_section, warehouse_sub_section_name, warehouse_sub_section_id, product_quantity,	product_warranty, product_main_img,	product_img_one, product_img_two, product_img_three,	product_img_four, product_description_en, product_description_bn) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
     if (!$stmt) {
         throw new Exception("SQL products failed: " . $conn->error);
     }
-    $stmt->bind_param("ssiiisssssssssssssssssissssssss", $product_name_en, $product_name_bn, $regular_price, $discount, $current_price, $product_model, $raw_product_category, $product_category, $product_category_id, $raw_product_sub_category, $product_sub_category, $product_sub_category_id, $raw_warehouse, $warehouse_name, $warehouse_id, $warehouse_address, $raw_warehouse_section, $warehouse_section_name, $warehouse_section_id, $raw_warehouse_sub_section, $warehouse_sub_section_name, $warehouse_sub_section_id, $product_quantity, $product_warranty, $product_main_img, $product_img_one, $product_img_two, $product_img_three, $product_img_four, $product_description_en, $product_description_bn);
+    $stmt->bind_param("issiiisssssssssssssssssissssssss", $delivery_charge, $product_name_en, $product_name_bn, $regular_price, $discount, $current_price, $product_model, $raw_product_category, $product_category, $product_category_id, $raw_product_sub_category, $product_sub_category, $product_sub_category_id, $raw_warehouse, $warehouse_name, $warehouse_id, $warehouse_address, $raw_warehouse_section, $warehouse_section_name, $warehouse_section_id, $raw_warehouse_sub_section, $warehouse_sub_section_name, $warehouse_sub_section_id, $product_quantity, $product_warranty, $product_main_img, $product_img_one, $product_img_two, $product_img_three, $product_img_four, $product_description_en, $product_description_bn);
 
     if (!$stmt->execute()) {
         throw new Exception("Insert to failed on products table: " . $stmt->error);
