@@ -20,7 +20,7 @@ try {
         throw new Exception("All fields are required");
     }
 
-    $stmt = $conn->prepare("SELECT user_name, password, role FROM general_users WHERE user_name=?");
+    $stmt = $conn->prepare("SELECT id, user_name, password, role FROM general_users WHERE user_name=?");
     if (!$stmt) {
         throw new Exception("SQL failed: " . $conn->error);
     }
@@ -34,12 +34,13 @@ try {
             $user = $row;
         }
         if (password_verify($password, $user["password"])) {
+            $_SESSION["user_id"] = $user["id"];
             $_SESSION["user_name"] = $user["user_name"];
             $_SESSION["role"] = $user["role"];
 
             $response["success"] = true;
             $response["message"] = "Login successful";
-            $response["data"] = ["user_name" => $user["user_name"], "role" => $user["role"]];
+            $response["data"] = ["user_id" => $user["id"], "user_name" => $user["user_name"], "role" => $user["role"]];
         } else {
             $response["success"] = true;
             $response["message"] = "Wrong password";

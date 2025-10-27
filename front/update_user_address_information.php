@@ -12,10 +12,10 @@ try {
     if ($_SERVER["REQUEST_METHOD"] != "POST") {
         throw new Exception("Invalid request method. Must be POST request");
     }
-    if (!isset($_GET["user_name"]) || $_GET["user_name"] == "") {
-        throw new Exception("?user_name= is needed");
+    if (!isset($_GET["user_id"]) || $_GET["user_id"] == "") {
+        throw new Exception("?user_id= is needed");
     }
-    $user_name = trim($_GET["user_name"]);
+    $user_id = trim($_GET["user_id"]);
 
     // user data
     $data = json_decode(file_get_contents("php://input"), true);
@@ -31,12 +31,12 @@ try {
         $response["message"] = "all fields are required";
     }
 
-    $stmt = $conn->prepare("UPDATE users_information SET full_name=?, mobile_number=?, address_label=?, area=?, address=?, landmark=? WHERE user_name=?");
+    $stmt = $conn->prepare("UPDATE users_information SET full_name=?, mobile_number=?, address_label=?, area=?, address=?, landmark=? WHERE user_id=?");
     if (!$stmt) {
         throw new Exception("SQL failed: " . $conn->error);
     }
 
-    $stmt->bind_param("sssssss", $full_name, $mobile_number, $address_label, $area, $address, $landmark, $user_name);
+    $stmt->bind_param("sssssss", $full_name, $mobile_number, $address_label, $area, $address, $landmark, $user_id);
     if (!$stmt->execute()) {
         throw new Exception("Update failed: " . $stmt->error);
     }

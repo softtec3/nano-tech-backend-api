@@ -13,16 +13,16 @@ try {
         throw new Exception("Invalid request method. Must be GET request");
     }
 
-    if (!isset($_GET["user_name"]) || $_GET["user_name"] == "") {
-        throw new Exception("?user_name= is needed");
+    if (!isset($_GET["user_id"]) || $_GET["user_id"] == "") {
+        throw new Exception("?user_id= is needed");
     }
-    $user_name = trim($_GET["user_name"]);
+    $user_id = trim($_GET["user_id"]);
 
-    $stmt = $conn->prepare("SELECT * FROM users_information WHERE user_name=?");
+    $stmt = $conn->prepare("SELECT * FROM users_information WHERE user_id=?");
     if (!$stmt) {
         throw new Exception("SQL failed: " . $conn->error);
     }
-    $stmt->bind_param("s", $user_name);
+    $stmt->bind_param("s", $user_id);
     if (!$stmt->execute()) {
         throw new Exception("Fetching failed: " . $stmt->error);
     }
