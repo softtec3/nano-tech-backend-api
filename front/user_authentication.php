@@ -12,6 +12,7 @@ try {
         $response["success"] = true;
         $response["message"] = "User is authenticated";
         $response["data"] = [
+            "user_id" => $_SESSION["user_id"],
             "user_name" => $_SESSION["user_name"],
             "role" => $_SESSION["role"],
         ];
