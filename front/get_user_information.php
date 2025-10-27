@@ -38,11 +38,6 @@ try {
         $response["message"] = "0 data found";
     }
 
-
-
-
-
-
     $stmt->close();
     $conn->close();
 } catch (Exception $e) {
