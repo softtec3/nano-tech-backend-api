@@ -20,7 +20,7 @@ try {
     $product_description_field = $lang === 'bn' ? 'product_description_bn' : 'product_description_en';
     $product_id = (int) $_GET["product_id"] ?? 0;
 
-    $stmt = $conn->prepare("SELECT id, $product_name_field AS product_name, regular_price, discount,current_price, product_model, raw_product_category,product_category,product_category_id,raw_product_sub_category,product_sub_category,product_sub_category_id,raw_warehouse,warehouse_name,warehouse_id,warehouse_address,raw_warehouse_section,warehouse_section_name,warehouse_section_id,raw_warehouse_sub_section,warehouse_sub_section_name,warehouse_sub_section_id,product_quantity,product_warranty,product_main_img,product_img_one,product_img_two,product_img_three,product_img_four, $product_description_field AS product_description,marker,created_at FROM products WHERE id=?");
+    $stmt = $conn->prepare("SELECT id, $product_name_field AS product_name, regular_price, discount,current_price,delivery_charge, product_model, raw_product_category,product_category,product_category_id,raw_product_sub_category,product_sub_category,product_sub_category_id,raw_warehouse,warehouse_name,warehouse_id,warehouse_address,raw_warehouse_section,warehouse_section_name,warehouse_section_id,raw_warehouse_sub_section,warehouse_sub_section_name,warehouse_sub_section_id,product_quantity,product_warranty,product_main_img,product_img_one,product_img_two,product_img_three,product_img_four, $product_description_field AS product_description,marker,created_at FROM products WHERE id=?");
     if (!$stmt) {
         throw new Exception("SQL failed in products find operation "  . $conn->error);
     }
