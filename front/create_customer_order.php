@@ -18,7 +18,7 @@ try {
     total_amount int NOT NULL,
     payment_method varchar(100) DEFAULT NULL,
     pickup_type ENUM('home','sales_point') DEFAULT 'home',
-    order_status ENUM('pending','confirmed','shipped','delivered') DEFAULT 'pending',
+    order_status ENUM('pending','confirmed','shipped','delivered', 'rejected') DEFAULT 'pending',
     created_at timestamp DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )";
@@ -93,6 +93,7 @@ try {
     $response["message"] = "Order successfully placed";
 
     $stmt->close();
+    $stmt2->close();
     $conn->close();
 } catch (Exception $e) {
     $response["success"] = false;
