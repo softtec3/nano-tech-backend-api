@@ -88,12 +88,22 @@ try {
         if (!$stmt2->execute()) {
             throw new Exception("Error to insert to customer_order_items" . $stmt2->error);
         }
+        // decrease product quantity
+        $stmt3 = $conn->prepare("UPDATE products SET product_quantity = GREATEST(product_quantity - ?,0) WHERE id=?");
+        if (!$stmt3) {
+            throw new Exception("SQL failed products decrease: " . $conn->error);
+        }
+        $stmt3->bind_param("ii", $quantity, $product_id);
+        if (!$stmt3->execute()) {
+            throw new Exception("Failed to update products " . $stmt3->error);
+        }
     }
     $response["success"] = true;
     $response["message"] = "Order successfully placed";
 
     $stmt->close();
     $stmt2->close();
+    $stmt3->close();
     $conn->close();
 } catch (Exception $e) {
     $response["success"] = false;
