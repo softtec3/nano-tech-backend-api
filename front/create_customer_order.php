@@ -80,11 +80,11 @@ try {
         $quantity = $item["quantity"];
         $price = $item["price"];
         $delivery_charge = $item["delivery_charge"];
-        $stmt2 = $conn->prepare("INSERT INTO customer_order_items (order_id, product_id, quantity, price, delivery_charge) VALUES(?,?,?,?,?)");
+        $stmt2 = $conn->prepare("INSERT INTO customer_order_items (order_id, product_id, quantity, price, delivery_charge, user_id) VALUES(?,?,?,?,?,?)");
         if (!$stmt2) {
             throw new Exception("SQL failed customer_order_items " . $conn->error);
         }
-        $stmt2->bind_param("iiiis", $order_id, $product_id, $quantity, $price, $delivery_charge);
+        $stmt2->bind_param("iiiisi", $order_id, $product_id, $quantity, $price, $delivery_charge, $user_id);
         if (!$stmt2->execute()) {
             throw new Exception("Error to insert to customer_order_items" . $stmt2->error);
         }
