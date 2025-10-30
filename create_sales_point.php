@@ -35,16 +35,17 @@ try {
     $owner_nid = trim($data["owner_nid"]) ?? "";
     $owner_name = trim($data["owner_name"]) ?? "";
     $phone_number = trim($data["phone_number"]) ?? "";
+    $user_id = (int) $data["user_id"] ?? 0;
 
-    if (empty($name) || empty($location) || empty($owner_nid) || empty($owner_name)  || empty($phone_number)) {
+    if (empty($name) || empty($location) || empty($owner_nid) || empty($owner_name)  || empty($phone_number) || empty($user_id)) {
         throw new Exception("All fields are required");
     }
 
-    $stmt = $conn->prepare("INSERT INTO sales_points (name, location, owner_name, phone_number, owner_nid) VALUES (?,?,?,?,?)");
+    $stmt = $conn->prepare("INSERT INTO sales_points (name, location, owner_name, phone_number, owner_nid, user_id) VALUES (?,?,?,?,?,?)");
     if (!$stmt) {
         throw new Exception("Exception failed " . $conn->error);
     }
-    $stmt->bind_param("sssss", $name, $location, $owner_name, $phone_number, $owner_nid);
+    $stmt->bind_param("sssssi", $name, $location, $owner_name, $phone_number, $owner_nid, $user_id);
 
     if (!$stmt->execute()) {
         throw new Exception("Error inserting on sales_points table " . $stmt->error);
@@ -55,8 +56,18 @@ try {
         $response["message"] = "Sales point created successfully";
         $response["data"] = ["insert_id" => $stmt->insert_id];
     }
-
+    // update role of user
+    $update_role = "sales-representative";
+    $stmt2 = $conn->prepare("UPDATE general_users SET role=? WHERE id=?");
+    if (!$stmt2) {
+        throw new Exception("SQL failed: " . $conn->error);
+    }
+    $stmt2->bind_param("si", $update_role, $user_id);
+    if (!$stmt2->execute()) {
+        throw new Exception("Failed to update: " . $stmt2->error);
+    }
     $stmt->close();
+    $stmt2->close();
     $conn->close();
 } catch (Exception $e) {
     $response["success"] = false;
