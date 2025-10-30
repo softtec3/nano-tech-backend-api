@@ -11,11 +11,20 @@ try {
     if (!empty($_SESSION["user_name"]) && !empty($_SESSION["role"])) {
         $response["success"] = true;
         $response["message"] = "User is authenticated";
-        $response["data"] = [
-            "user_id" => $_SESSION["user_id"],
-            "user_name" => $_SESSION["user_name"],
-            "role" => $_SESSION["role"],
-        ];
+        if ($_SESSION["role"] === "sales-representative") {
+            $response["data"] = [
+                "user_id" => $_SESSION["user_id"],
+                "user_name" => $_SESSION["user_name"],
+                "role" => $_SESSION["role"],
+                "sales_point_id" => $_SESSION["sales_point_id"]
+            ];
+        } else {
+            $response["data"] = [
+                "user_id" => $_SESSION["user_id"],
+                "user_name" => $_SESSION["user_name"],
+                "role" => $_SESSION["role"],
+            ];
+        }
     }
 } catch (Exception $e) {
     $response["success"] = false;

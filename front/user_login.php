@@ -38,9 +38,32 @@ try {
             $_SESSION["user_name"] = $user["user_name"];
             $_SESSION["role"] = $user["role"];
 
+            if ($user["role"] === "sales-representative") {
+                $stmt2 = $conn->prepare("SELECT id FROM sales_points WHERE user_id=?");
+                if (!$stmt2) {
+                    throw new Exception("SQL failed sales_points: " . $conn->error);
+                }
+                $stmt2->bind_param("i", $user["id"]);
+                if (!$stmt2->execute()) {
+                    throw new Exception("Fetching failed sales_point " . $stmt2->error);
+                }
+                $result2 = $stmt2->get_result();
+                if ($result2 && $result2->num_rows > 0) {
+                    while ($row2 = $result2->fetch_assoc()) {
+                        $sales_id = $row2["id"];
+                    }
+                }
+                $_SESSION["sales_point_id"] = $sales_id;
+                $stmt2->close();
+            }
+
             $response["success"] = true;
             $response["message"] = "Login successful";
-            $response["data"] = ["user_id" => $user["id"], "user_name" => $user["user_name"], "role" => $user["role"]];
+            if ($sales_id ?? NULL) {
+                $response["data"] = ["user_id" => $user["id"], "user_name" => $user["user_name"], "role" => $user["role"], "sales_point_id" => $sales_id];
+            } else {
+                $response["data"] = ["user_id" => $user["id"], "user_name" => $user["user_name"], "role" => $user["role"]];
+            }
         } else {
             $response["success"] = true;
             $response["message"] = "Wrong password";
