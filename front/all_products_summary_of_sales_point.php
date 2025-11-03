@@ -35,6 +35,26 @@ try {
         while ($row = $result->fetch_assoc()) {
             $products[] = $row;
         }
+
+        // get image
+        foreach ($products as $idx => $product) {
+            $id = $product["product_id"];
+            $stmt2 = $conn->prepare("SELECT product_main_img FROM products WHERE id=?");
+            if (!$stmt2) {
+                throw new Exception("SQL failed products: " . $conn->error);
+            }
+            $stmt2->bind_param("i", $id);
+            if (!$stmt2->execute()) {
+                throw new Exception("failed to fetch" . $stmt2->error);
+            }
+            $result2 = $stmt2->get_result();
+            if ($result2 && $result2->num_rows > 0) {
+                $product_image = $result2->fetch_assoc()["product_main_img"];
+            }
+            $products[$idx]["product_image"] = $product_image;
+        }
+
+
         $response["success"] = true;
         $response["message"]  = "Fetching successful";
         $response["data"] = $products;
