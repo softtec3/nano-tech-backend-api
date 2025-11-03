@@ -20,7 +20,7 @@ try {
 
     $products = [];
 
-    $stmt = $conn->prepare("SELECT product_id FROM sales_points_products_summary WHERE sales_point_id=?");
+    $stmt = $conn->prepare("SELECT product_id FROM sales_points_products_summary WHERE sales_point_id=? AND current_quantity>0");
     if (!$stmt) {
         throw new Exception("SQL failed " . $conn->error);
     }
