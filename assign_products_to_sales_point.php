@@ -56,13 +56,36 @@ try {
     $current_quantity = (int) $data["current_quantity"] ?? 0;
     $selectedIds = $data["selectedIds"];
 
-    $stmt = $conn->prepare("INSERT INTO sales_points_products_summary (product_id,product_name,assign_products_quantity,current_quantity, sales_point_id,sales_point_name) VALUES (?,?,?,?,?,?)");
-    if (!$stmt) {
-        throw new Exception("SQL failed on sales_points_products_summary " . $conn->error);
+    // check already exist or not
+
+    $stmt4 = $conn->prepare("SELECT product_name FROM sales_points_products_summary WHERE product_id=? AND sales_point_id=?");
+    if (!$stmt4) {
+        throw new Exception("SQL failed: " . $conn->error);
     }
-    $stmt->bind_param("isiiis", $product_id, $product_name, $assign_product_quantity, $current_quantity, $sales_point_id, $sales_point_name);
-    if (!$stmt->execute()) {
-        throw new Exception("Failed to insert on sales_points_products_summary " . $stmt->error);
+    $stmt4->bind_param("ii", $product_id, $sales_point_id);
+    if (!$stmt4->execute()) {
+        throw new Exception("Fetching failed: " . $stmt4->error);
+    }
+    $result4 = $stmt4->get_result();
+    if ($result4 && $result4->num_rows > 0) {
+        $stmt5 = $conn->prepare("UPDATE sales_points_products_summary SET assign_products_quantity=assign_products_quantity+?, current_quantity=current_quantity+? WHERE product_id=? AND sales_point_id=?");
+        if (!$stmt5) {
+            throw new Exception("SQL failed update: " . $conn->error);
+        }
+        $stmt5->bind_param("iiii", $assign_product_quantity, $current_quantity, $product_id, $sales_point_id);
+        if (!$stmt5->execute()) {
+            throw new Exception("Failed update: " . $stmt5->error);
+        }
+    } else {
+        $stmt = $conn->prepare("INSERT INTO sales_points_products_summary (product_id,product_name,assign_products_quantity,current_quantity, sales_point_id,sales_point_name) VALUES (?,?,?,?,?,?)");
+        if (!$stmt) {
+            throw new Exception("SQL failed on sales_points_products_summary " . $conn->error);
+        }
+        $stmt->bind_param("isiiis", $product_id, $product_name, $assign_product_quantity, $current_quantity, $sales_point_id, $sales_point_name);
+        if (!$stmt->execute()) {
+            throw new Exception("Failed to insert on sales_points_products_summary " . $stmt->error);
+        }
+        $stmt->close();
     }
 
     if (count($selectedIds) > 0) {
@@ -89,7 +112,11 @@ try {
     $response["success"] = true;
     $response["message"] = "Assigned successfully";
 
-    $stmt->close();
+
+    $stmt2->close();
+    $stmt3->close();
+    $stmt4->close();
+    $stmt5->close();
     $conn->close();
 } catch (Exception $e) {
     $response["success"] = false;
