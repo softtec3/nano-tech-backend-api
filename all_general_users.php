@@ -13,7 +13,7 @@ try {
         throw new Exception("Invalid request method. Must be GET request");
     }
 
-    $stmt = $conn->prepare("SELECT id, full_name, user_name, role FROM general_users ORDER BY id DESC");
+    $stmt = $conn->prepare("SELECT id, full_name, user_name, role, status FROM general_users ORDER BY id DESC");
     if (!$stmt) {
         throw new Exception("SQL failed " . $conn->error);
     }

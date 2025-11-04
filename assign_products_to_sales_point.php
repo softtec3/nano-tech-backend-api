@@ -76,6 +76,7 @@ try {
         if (!$stmt5->execute()) {
             throw new Exception("Failed update: " . $stmt5->error);
         }
+        $stmt5->close();
     } else {
         $stmt = $conn->prepare("INSERT INTO sales_points_products_summary (product_id,product_name,assign_products_quantity,current_quantity, sales_point_id,sales_point_name) VALUES (?,?,?,?,?,?)");
         if (!$stmt) {
@@ -116,7 +117,6 @@ try {
     $stmt2->close();
     $stmt3->close();
     $stmt4->close();
-    $stmt5->close();
     $conn->close();
 } catch (Exception $e) {
     $response["success"] = false;
