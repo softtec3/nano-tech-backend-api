@@ -16,15 +16,16 @@ try {
     $credential = json_decode(file_get_contents("php://input"), true);
     $user_name = $credential["user_name"] ?? "";
     $password = $credential["password"] ?? "";
+    $user_status = "active";
     if (empty($user_name) || empty($password)) {
         throw new Exception("All fields are required");
     }
 
-    $stmt = $conn->prepare("SELECT id, user_name, password, role FROM general_users WHERE user_name=?");
+    $stmt = $conn->prepare("SELECT id, user_name, password, role, status FROM general_users WHERE user_name=? AND status=?");
     if (!$stmt) {
         throw new Exception("SQL failed: " . $conn->error);
     }
-    $stmt->bind_param("s", $user_name);
+    $stmt->bind_param("ss", $user_name, $user_status);
     if (!$stmt->execute()) {
         throw new Exception("Execution failed: " . $stmt->error);
     }
@@ -39,11 +40,12 @@ try {
             $_SESSION["role"] = $user["role"];
 
             if ($user["role"] === "sales-representative") {
-                $stmt2 = $conn->prepare("SELECT id FROM sales_points WHERE user_id=?");
+                $status = "active";
+                $stmt2 = $conn->prepare("SELECT id FROM sales_points WHERE user_id=? AND status=?");
                 if (!$stmt2) {
                     throw new Exception("SQL failed sales_points: " . $conn->error);
                 }
-                $stmt2->bind_param("i", $user["id"]);
+                $stmt2->bind_param("is", $user["id"], $status);
                 if (!$stmt2->execute()) {
                     throw new Exception("Fetching failed sales_point " . $stmt2->error);
                 }
@@ -53,7 +55,7 @@ try {
                         $sales_id = $row2["id"];
                     }
                 }
-                $_SESSION["sales_point_id"] = $sales_id;
+                $_SESSION["sales_point_id"] = $sales_id ?? NULL;
                 $stmt2->close();
             }
 
