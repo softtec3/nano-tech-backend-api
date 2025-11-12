@@ -1,9 +1,9 @@
 <?php
-require_once("../php/config.php"); // your PDO connection ($conn)
 $config = include('bkash_config.php');
-
+// database connection without header info
+include_once("db_config.php");
 // enable error logging (optional)
-ini_set('log_errors', 0); // 1 for development
+ini_set('log_errors', 1); // 1 for development
 ini_set('error_log', __DIR__ . '/bkash_errors.log');
 
 $status = $_GET['status'] ?? 'unknown';
@@ -13,7 +13,7 @@ function redirectHome($delay = 3)
 {
     echo "<script>
         setTimeout(() => {
-            window.location.href = '../home.php';
+            window.location.href = 'http://localhost:5174/account/myOrders'; //need to change
         }, " . ($delay * 1000) . ");
     </script>";
     exit;
@@ -31,7 +31,20 @@ function showMessage($title, $type = 'info')
     $icon = $icons[$type] ?? 'ℹ️';
     echo "<h2>{$icon} {$title}</h2>";
 }
-
+// update status function
+$updateStatus = function ($status, $order_id) use ($conn) {
+    $stmt = $conn->prepare("UPDATE customer_orders SET payment_status=? WHERE id=?");
+    if (!$stmt) {
+        echo "SQL failed: " . $conn->error;
+        redirectHome();
+    }
+    $stmt->bind_param("si", $status, $order_id);
+    if (!$stmt->execute()) {
+        echo "failed to update: " . $stmt->error;
+    }
+    $stmt->close();
+    redirectHome();
+};
 try {
     if ($status === 'success' && $paymentId !== '') {
 
@@ -84,72 +97,20 @@ try {
         showMessage("Payment Successful!", 'success');
         echo "<p>Transaction ID: " . htmlspecialchars($trxId) . "</p>";
         echo "<p>Amount: " . htmlspecialchars($amount) . " BDT</p>";
-        echo "<p>User ID: " . htmlspecialchars($payerReference) . "</p>";
-
-        // 5️⃣ Fetch transaction record
-        $find_transaction = $conn->prepare("SELECT * FROM transactions WHERE merchant_invoice = ?");
-        $find_transaction->execute([$invoice_number]);
-        $found_transaction = $find_transaction->fetch(PDO::FETCH_ASSOC);
-
-        if (!$found_transaction) {
-            error_log("Transaction not found for invoice: $invoice_number");
-            showMessage("Transaction not found.", 'error');
-            redirectHome();
+        echo "<p>Order ID: " . htmlspecialchars($payerReference) . "</p>";
+        // save transaction details
+        $stmt2 = $conn->prepare("INSERT INTO transactions(order_id, txn_id, merchant_invoice, amount) VALUES(?,?,?,?)");
+        if (!$stmt2) {
+            echo "SQL failed: " . $conn->error;
         }
-
-        // 6️⃣ Update transaction status
-        $update_status = $conn->prepare("UPDATE transactions SET status='success', txn_id=? WHERE merchant_invoice=?");
-        $update_status->execute([$trxId, $invoice_number]);
-
-        // 7️⃣ Apply business logic
-        $payment_for = $found_transaction["payment_for"] ?? '';
-        $pay_user_id = $payerReference;
-
-        // 👉 Biodata payment
-        if ($payment_for === "biodata") {
-            $update_biodata = $conn->prepare("UPDATE biodatas SET status='active' WHERE user_id=?");
-            if (!$update_biodata->execute([$pay_user_id])) {
-                error_log("Failed to activate biodata for user_id $pay_user_id");
-            }
+        $stmt2->bind_param("issi", $payerReference, $trxId, $invoice_number, $amount);
+        if (!$stmt2->execute()) {
+            echo "Failed to insert: " . $stmt2->error;
         }
-
-        // 👉 Package payment
-        if ($payment_for !== "biodata" && !empty($payment_for)) {
-            $connect_amount = 0;
-            switch ($payment_for) {
-                case 'starter':
-                    $connect_amount = 1;
-                    break;
-                case 'mini':
-                    $connect_amount = 3;
-                    break;
-                case 'basic':
-                    $connect_amount = 3;
-                    break;
-                case 'pro':
-                    $connect_amount = 15;
-                    break;
-                case 'premium':
-                    $connect_amount = 1200;
-                    break;
-            }
-
-            if ($connect_amount > 0) {
-                $update_connect = $conn->prepare("UPDATE users SET connects = connects + ? WHERE user_id=?");
-                if (!$update_connect->execute([$connect_amount, $pay_user_id])) {
-                    error_log("Failed to update connects for user $pay_user_id");
-                }
-            }
-        }
-
-        // 👉 Single biodata interest payment
-        if (!empty($found_transaction["interested_id"])) {
-            $interested_id = $found_transaction["interested_id"];
-            $add_interested = $conn->prepare("INSERT INTO interested (user_id, biodata_id) VALUES (?, ?)");
-            if (!$add_interested->execute([$pay_user_id, $interested_id])) {
-                error_log("Failed to add interested record for user $pay_user_id, biodata $interested_id");
-            }
-        }
+        echo "Inserted";
+        $stmt2->close();
+        // Update database
+        $updateStatus("paid", $payerReference);
 
         redirectHome();
     } elseif ($status === 'failure') {

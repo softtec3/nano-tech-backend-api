@@ -1,54 +1,85 @@
 <?php
-require_once("../php/config.php");
+require_once("../db_connect.php");
 $config = include('bkash_config.php');
 
-// get latest token
-$tokenData = json_decode(file_get_contents('token.json'), true);
-$id_token = $tokenData['id_token'] ?? '';
-
-if (!$id_token) {
-    header('HTTP/1.1 401 Unauthorized');
-    echo json_encode(['error' => 'No valid token']);
-    exit;
-}
-
-$url = $config['base_url'] . '/tokenized-checkout/payment/create';
-$headers = [
-    'Content-Type: application/json',
-    'Accept: application/json',
-    'authorization:' . $id_token,
-    'x-app-key:' . $config['app_key']
+$response = [
+    "success" => false,
+    "message" => "",
+    "data" => []
 ];
-$data = json_decode(file_get_contents("php://input"), true);
-// user data
-$merchant_invoice = 'INV-' . time();
-$amount = $data["amount"];
-$user_id = $data["user_id"];
-$payment_for = $data["payment_for"];
-$interested_id = $data["interested_id"] ?? null;
 
-// save to database
+try {
+    if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+        throw new Exception("Invalid request method. Must be POST request.");
+    }
 
-$sql = "INSERT INTO transactions(user_id, amount, payment_for, merchant_invoice, interested_id) VALUES ('$user_id', '$amount', '$payment_for', '$merchant_invoice', '$interested_id')";
+    // --- Decode JSON body ---
+    $data = json_decode(file_get_contents("php://input"), true);
+    if (!$data) {
+        throw new Exception("Invalid JSON input.");
+    }
 
-$inserted_transactions = $conn->query($sql);
+    $amount   = $data["amount"] ?? null;
+    $order_id = $data["order_id"] ?? null;
 
-$payload = json_encode([
-    'payerReference' => $user_id, //need to change with customer user_id
-    'callbackURL' => 'https://ghotok.soft-techtechnology.com/payment/callback.php', //need to change with real domain
-    'amount' => $amount, //need to change with real amount
-    'currency' => 'BDT',
-    'intent' => 'sale',
-    'merchantInvoiceNumber' => $merchant_invoice
-]);
+    if (empty($amount) || empty($order_id)) {
+        throw new Exception("amount and order_id are required.");
+    }
 
-$ch = curl_init($url);
-curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-$response = curl_exec($ch);
-curl_close($ch);
+    // --- Load token ---
+    $tokenData = json_decode(file_get_contents('token.json'), true);
+    $id_token  = $tokenData['id_token'] ?? '';
 
-header('Content-Type: application/json');
-echo $response;
+    if (empty($id_token)) {
+        throw new Exception("No valid token. Please refresh and try again.");
+    }
+
+    // --- Prepare API data ---
+    $merchant_invoice = 'INV-' . time();
+    $url = $config['base_url'] . '/tokenized-checkout/payment/create';
+    $headers = [
+        'Content-Type: application/json',
+        'Accept: application/json',
+        'authorization:' . $id_token,
+        'x-app-key:' . $config['app_key']
+    ];
+
+    $payload = json_encode([
+        'payerReference' => $order_id,
+        'callbackURL' => 'https://localhost/api/front/payment/callback.php',
+        'amount' => $amount,
+        'currency' => 'BDT',
+        'intent' => 'sale',
+        'merchantInvoiceNumber' => $merchant_invoice
+    ]);
+
+    // --- cURL request ---
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $result = curl_exec($ch);
+    $curl_error = curl_error($ch);
+    curl_close($ch);
+
+    if ($curl_error) {
+        throw new Exception("cURL Error: " . $curl_error);
+    }
+
+    $bkash_response = json_decode($result, true);
+
+    if (empty($bkash_response)) {
+        throw new Exception("Invalid bKash response or empty body.");
+    }
+
+    // --- Return success ---
+    $response["success"] = true;
+    $response["message"] = "Payment created successfully.";
+    $response["data"] = $bkash_response;
+} catch (Exception $e) {
+    $response["success"] = false;
+    $response["message"] = $e->getMessage();
+} finally {
+    echo json_encode($response);
+}

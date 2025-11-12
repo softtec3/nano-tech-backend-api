@@ -100,7 +100,7 @@ try {
     }
     $response["success"] = true;
     $response["message"] = "Order successfully placed";
-    $response["data"] = ["insert_id" =>  $order_id];
+    $response["data"] = ["insert_id" =>  $order_id, "total_amount" => $total_amount];
 
     $stmt->close();
     $stmt2->close();
