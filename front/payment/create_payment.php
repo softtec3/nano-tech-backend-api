@@ -46,7 +46,7 @@ try {
 
     $payload = json_encode([
         'payerReference' => $order_id,
-        'callbackURL' => 'https://localhost/api/front/payment/callback.php',
+        'callbackURL' => 'https://api.nano-techbd.com/front/payment/callback.php',
         'amount' => $amount,
         'currency' => 'BDT',
         'intent' => 'sale',

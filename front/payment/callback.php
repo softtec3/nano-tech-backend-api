@@ -13,7 +13,7 @@ function redirectHome($delay = 3)
 {
     echo "<script>
         setTimeout(() => {
-            window.location.href = 'http://localhost:5174/account/myOrders'; //need to change
+            window.location.href = 'https://nano-techbd.com/account/myOrders';
         }, " . ($delay * 1000) . ");
     </script>";
     exit;
