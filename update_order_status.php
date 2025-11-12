@@ -38,7 +38,18 @@ try {
         $response["success"] = true;
         $response["message"] = "Status successfully updated to " . $status;
     }
-
+    if ($status === "delivered") {
+        $payment_status = "paid";
+        $stmt2 = $conn->prepare("UPDATE customer_orders SET payment_status=? WHERE id=?");
+        if (!$stmt2) {
+            throw new Exception("SQL failed customer_orders: " . $conn->error);
+        }
+        $stmt2->bind_param("si", $payment_status, $order_id);
+        if (!$stmt2->execute()) {
+            throw new Exception("Failed to update customer_orders: " . $stmt2->error);
+        }
+        $stmt2->close();
+    }
     $stmt->close();
     $conn->close();
 } catch (Exception $e) {
